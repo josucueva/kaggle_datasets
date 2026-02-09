@@ -1,0 +1,20 @@
+# kaggle dataset urls
+# one url per line, lines starting with # are ignored
+# 
+# supported formats:
+#   - full url: https://www.kaggle.com/datasets/username/dataset-name
+#   - short reference: username/dataset-name
+#   - kaggle protocol: kaggle://username/dataset-name
+
+# important notes:
+# - some datasets require accepting terms on kaggle.com before downloading
+# - verify the dataset exists and is public by visiting the url first
+# - use exact username/dataset-name from the kaggle url
+
+# verified working examples (uncomment to use):
+# brendan45774/test-file
+# kaushiksuresh147/customer-segmentation
+# fedesoriano/heart-failure-prediction
+
+# add your datasets below (one per line):
+kaushiksuresh147/customer-segmentation
