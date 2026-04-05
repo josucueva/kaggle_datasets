@@ -34,3 +34,13 @@ nalisha/numerical-feature-based-target-prediction-using-ml
 ganjerlawrence/mobile-phone-price-prediction-cleaned-dataset
 thedevastator/age-prediction-for-individuals-using-multi-omic
 zubairdhuddi/linear-regression
+
+# regression (hard candidates - validated with local analyzer)
+bobnau/daily-website-visitors
+deepcontractor/car-price-prediction-challenge
+taweilo/mba-admission-dataset
+milanvaddoriya/old-car-price-prediction
+bjaton/housepricesadvancedregressiontechniquestrain
+anujsaha0123456789/house-prices-cleaned-dataset-for-regression-ml
+valakhorasani/tehran-house-prices-dataset
+bharatsahu/house-price-prediction-dataset-insurancehub-usa
