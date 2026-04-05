@@ -1,211 +1,129 @@
-# kaggle dataset downloader
+# Kaggle Dataset Downloader
 
-modular dataset collection tool for automl testing
+Simple CLI project to download Kaggle datasets and organize them by:
 
-## structure
+- task: classification or regression
+- difficulty: easy, mid, hard
+
+## What This Project Does
+
+- Auto mode: searches Kaggle and collects datasets by task and difficulty
+- URL mode: downloads datasets from a custom URL/reference list
+- Difficulty analyzer: classifies each dataset as easy, mid, or hard
+
+All datasets are saved under `datasets/`.
+
+## Folder Layout
 
 ```
-.
-├── main.py              # entry point with cli
-├── auto_downloader.py       # auto search & download by difficulty
-├── url_downloader.py        # download from url list
-├── dataset_analyzer.py      # dataset difficulty analysis
-├── config.py                # centralized configuration
-├── utils.py                 # shared utilities
-├── dataset_urls.txt         # url list for manual mode
-└── datasets/                # output directory
-    ├── classification/
-    │   ├── easy/
-    │   ├── mid/
-    │   └── hard/
-    ├── regression/
-    │   ├── easy/
-    │   ├── mid/
-    │   └── hard/
-    └── urls/                # manually specified datasets
+datasets/
+  classification/
+    easy/
+    mid/
+    hard/
+  regression/
+    easy/
+    mid/
+    hard/
+  urls/
 ```
 
-## usage
+## Setup
 
-### auto mode
-
-automatically search and download datasets organized by difficulty:
+1. Install dependencies:
 
 ```bash
-# basic usage (1 dataset per difficulty level)
+pip install -r requirements.txt
+```
+
+2. Make sure Kaggle API is configured (`~/.kaggle/kaggle.json`).
+
+## Commands
+
+### Auto Mode
+
+Use auto mode to search and download by task and tier.
+
+```bash
+# default run
 python main.py auto
 
-# download 3 datasets per level
-python main.py auto --count 3
+# collect 5 datasets per tier
+python main.py auto --count 5
 
-# only classification datasets
-python main.py auto --tasks classification
-
-# only easy datasets (both tasks)
+# only easy tier
 python main.py auto --tiers easy --count 10
 
-# both tasks, 5 datasets each
-python main.py auto --tasks classification regression --count 5
+# only classification
+python main.py auto --tasks classification --count 5
+
+# classification + regression, only easy and mid
+python main.py auto --tasks classification regression --tiers easy mid --count 4
 ```
 
-auto mode now uses a two-pass strategy to improve tier fill rates:
+Notes:
 
-- pass 1: strict search (csv + size filters + single-csv datasets)
-- pass 2: relaxed fallback (broader search keywords/pages; can select one csv from multi-csv datasets)
+- The downloader first uses strict search filters.
+- If some tiers are still missing, it runs a relaxed fallback search.
+- `max_size` in `config.py` is enforced as a hard size cap.
 
-this helps when strict easy/hard buckets are hard to fill with the initial candidate pool.
+### URL Mode
 
-### url mode
-
-download specific datasets from a text file:
+Use URL mode to download datasets listed in a file.
 
 ```bash
-# use default file (dataset_urls.txt)
+# use dataset_urls.txt
 python main.py url
 
-# use custom file
-python main.py url --url-file my_datasets.txt
+# use a custom file
+python main.py url --url-file my_urls.txt
 ```
 
-### url file format
+Supported URL/reference formats:
 
-create a text file with one url per line:
+- `username/dataset-name`
+- `https://www.kaggle.com/datasets/username/dataset-name`
+- `kaggle://username/dataset-name`
 
-```
-# comments start with #
-# use section headers to classify url downloads by task:
+## URL File Format
+
+Use section headers so downloads are classified by task:
+
+```text
 # classification
-username/dataset-name
+username/dataset-a
+username/dataset-b
+
 # regression
-https://www.kaggle.com/datasets/username/another-dataset
-kaggle://username/third-dataset
+username/dataset-c
 ```
 
-when url mode finds `# classification` or `# regression` headers, downloaded datasets are analyzed and saved to:
+Behavior:
 
-- `datasets/classification/{easy,mid,hard}/...`
-- `datasets/regression/{easy,mid,hard}/...`
+- Entries under `# classification` are analyzed and saved to:
+  `datasets/classification/{easy,mid,hard}/...`
+- Entries under `# regression` are analyzed and saved to:
+  `datasets/regression/{easy,mid,hard}/...`
+- Entries outside a section are saved to `datasets/urls/`.
 
-urls outside those sections are saved as unclassified in `datasets/urls/`.
+## Difficulty Rules (Simple)
 
-### auto-sklearn baseline mode (thesis comparison)
+Easy is strict. A dataset is easy only if it has:
 
-run default auto-sklearn over all downloaded tiered datasets, with task/tier filters.
+- numeric features only
+- 15 columns or fewer
+- 0 missing values
+- 0 invalid values
+- for classification: largest class ratio <= 0.60
 
-required environment setup for auto-sklearn baseline compatibility:
+If it fails easy rules, it is scored as mid or hard based on complexity signals
+(missing data, invalid values, non-numeric ratio, dimensionality, imbalance, etc.).
 
-```bash
-# create dedicated python 3.9 env
-uv venv -p 3.9 .venv-autosklearn
-source .venv-autosklearn/bin/activate
+## Main Files
 
-# provide swig binary for pyrfr build
-uv pip install swig
-
-# install project deps (auto-sklearn pinned)
-uv pip install -r requirements.txt
-```
-
-examples:
-
-- run all tasks and tiers:
-  python -m autosklearn_baseline.cli
-- run only classification mid tier:
-  python -m autosklearn_baseline.cli --task classification --tier mid
-- run only regression easy and hard tiers:
-  python -m autosklearn_baseline.cli --task regression --tier easy hard
-
-optional runtime controls:
-
-- `--time-left`: total time budget per dataset (seconds)
-- `--per-run-time-limit`: time budget per model fit candidate (seconds)
-- `--test-size`: train/test split ratio
-- `--seed`: random seed
-- `--target-config`: JSON map with explicit target column per dataset
-
-explicit target mapping file:
-
-- `autosklearn_baseline/dataset_targets.json`
-
-the runner uses this mapping first to select the target column for each dataset,
-and only falls back to heuristic inference if a dataset is not mapped.
-
-outputs are saved in `results/`:
-
-- `autosklearn_baseline_results.csv` (cumulative per-dataset outcomes, appended each run)
-- `autosklearn_baseline_summary.json` (cumulative success rate and mean metrics)
-
-the JSON summary also includes `datasets_latest`, with one latest entry per dataset
-(task, tier, name), including status, key metrics, and `runs_count`.
-
-the results CSV also stores model-traceability metadata per dataset, including:
-
-- `automl_models_tried`
-- `automl_ensemble_size`
-- `automl_best_model_weight`
-- `automl_best_model_repr`
-- `automl_sprint_stats`
-- `automl_show_models`
-
-## modules
-
-- **main.py**: cli interface, choose mode and parameters
-- **auto_downloader.py**: auto mode - search by task type and difficulty
-- **url_downloader.py**: url mode - download from specified urls
-- **dataset_analyzer.py**: analyze datasets and classify difficulty
-- **config.py**: central place for defaults and validation
-- **utils.py**: file operations and helpers
-
-## difficulty classification
-
-the classifier now uses **strict easy rules** and a **point-based mid/hard score**.
-
-### strict easy requirements
-
-a dataset is marked as `easy` only if all these are true:
-
-- all feature columns are numeric
-- very few columns (`<= 15`)
-- missing data ratio is exactly `0.0`
-- invalid/corrupt value ratio is exactly `0.0`
-- for classification: class imbalance is low (largest class ratio `<= 0.60`)
-
-if any strict condition fails, the dataset cannot be `easy`.
-
-### mid/hard scoring (when strict easy fails)
-
-the analyzer adds points for complexity signals:
-
-| Signal                      | Thresholds        | Points      |
-| --------------------------- | ----------------- | ----------- |
-| Missing data                | `>5%` / `>20%`    | `+1` / `+3` |
-| Invalid values              | `>1%` / `>5%`     | `+1` / `+3` |
-| Numeric feature ratio       | `<80%` / `<50%`   | `+1` / `+3` |
-| Number of columns           | `>40` / `>100`    | `+1` / `+3` |
-| Features/samples ratio      | `>0.10` / `>0.20` | `+1` / `+2` |
-| Avg categorical cardinality | `>80` / `>200`    | `+1` / `+2` |
-
-classification-only signals:
-
-| Signal                                | Thresholds                  | Points             |
-| ------------------------------------- | --------------------------- | ------------------ |
-| Target not detected confidently       | n/a                         | `+2`               |
-| Class imbalance (largest class ratio) | `>0.65` / `>0.75` / `>0.90` | `+1` / `+2` / `+3` |
-| Number of classes                     | `>10` / `>20`               | `+1` / `+2`        |
-
-regression-only signals:
-
-| Signal                           | Thresholds | Points |
-| -------------------------------- | ---------- | ------ |
-| Target not detected confidently  | n/a        | `+1`   |
-| Low numeric ratio for regression | `<50%`     | `+2`   |
-
-final level:
-
-- `easy`: passes all strict easy requirements
-- `mid`: strict easy failed and score `< 6`
-- `hard`: strict easy failed and score `>= 6`
-
-## requirements
-
-see requirements.txt
+- `main.py`: CLI entrypoint
+- `auto_downloader.py`: auto collection logic
+- `url_downloader.py`: URL list collection logic
+- `dataset_analyzer.py`: difficulty analysis
+- `config.py`: defaults and limits
+- `dataset_urls.txt`: manual URL/reference list
