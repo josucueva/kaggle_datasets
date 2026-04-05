@@ -16,5 +16,21 @@
 # kaushiksuresh147/customer-segmentation
 # fedesoriano/heart-failure-prediction
 
-# add your datasets below (one per line):
-kaushiksuresh147/customer-segmentation
+# cleaned for strict easy-tier targeting
+# keep only refs that are very likely to pass strict easy,
+# plus refs validated with the local analyzer.
+
+# classification (easy candidates - validated with local analyzer)
+yasserh/heart-disease-dataset
+robikscube/eye-state-classification-eeg-dataset
+mahmoudshaheen1134/heart-disease-data
+ritwikb3/heart-disease-statlog
+ritwikb3/heart-disease-cleveland
+
+# regression (easy candidates - validated with local analyzer)
+sakshisatre/the-boston-housing-dataset
+govindaramsriram/crop-yield-of-a-farm
+nalisha/numerical-feature-based-target-prediction-using-ml
+ganjerlawrence/mobile-phone-price-prediction-cleaned-dataset
+thedevastator/age-prediction-for-individuals-using-multi-omic
+zubairdhuddi/linear-regression

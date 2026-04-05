@@ -1,0 +1,32 @@
+{
+  "classification": {
+    "fedesoriano_stellar-classification-dataset-sdss17": "class",
+    "andrewmvd_cyberbullying-classification": "cyberbullying_type",
+    "christianlillelund_csgo-round-winner-classification": "round_winner",
+    "fedesoriano_heart-failure-prediction": "HeartDisease",
+    "nimapourmoradi_dry-bean-dataset-classification": "Class",
+    "tanishqdublish_text-classification-documentation": "Label",
+    "uciml_iris": "Species",
+    "uciml_pima-indians-diabetes-database": "Outcome",
+    "xhlulu_cpc-codes": "class",
+    "yasserh_titanic-dataset": "Survived",
+    "balaka18_email-spam-classification-dataset-csv": "target",
+    "hetulmehta_website-classification": "Category",
+    "saurabhshahane_ecommerce-text-classification": "Household",
+    "shivamb_spam-url-prediction": "is_spam"
+  },
+  "regression": {
+    "quantbruce_real-estate-price-prediction": "Y house price of unit area",
+    "ranitsarkar01_porter-delivery-time-estimation": "actual_delivery_time",
+    "kanchana1990_colorado-real-estate-market-2026": "listPrice",
+    "spittman1248_cdc-data-nutrition-physical-activity-obesity": "Data_Value",
+    "camnugent_california-housing-prices": "median_house_value",
+    "CooperUnion_cardataset": "MSRP",
+    "harlfoxem_housesalesprediction": "price",
+    "hrokrin_the-largest-diamond-dataset-currely-on-kaggle": "total_sales_price",
+    "lorenzozoppelletto_financial-risk-for-loan-approval": "RiskScore",
+    "mirichoi0218_insurance": "charges",
+    "rupals_gpu-runtime": "Run1 (ms)",
+    "yasserh_uber-fares-dataset": "fare_amount"
+  }
+}

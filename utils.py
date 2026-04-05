@@ -6,7 +6,7 @@ import pandas as pd
 
 def has_single_csv(path):
     """check if directory contains exactly one csv file"""
-    archivos_csv = glob.glob(os.path.join(path, "*.csv"))
+    archivos_csv = glob.glob(os.path.join(path, "**", "*.csv"), recursive=True)
     return len(archivos_csv) == 1, archivos_csv
 
 
